@@ -7,6 +7,7 @@ function Price() {
   const [productPrices, setProductPrices] = useState(null)
   const [mainData, setMainData] = useState(null)
   const [campaignData, setCampaignData] = useState(null)
+  const [fileName, setFileName] = useState('')
 
   const skuInputRef = useRef(null);
   const priceInputRef = useRef(null);
@@ -25,7 +26,6 @@ function Price() {
 
       let product = productSkus[sku] || ''
 
-      debugger
       let dataInCampaignSheet = campaignData.find((y) => {
         return y['Seller SKU'] === sku
       })
@@ -51,7 +51,7 @@ function Price() {
 
     XLSX.utils.book_append_sheet(wb, ws, 'sheet1')
 
-    XLSX.writeFile(wb, 'file.xlsx')
+    XLSX.writeFile(wb, (fileName || 'file') + '.xlsx')
 
   }
 
@@ -146,7 +146,6 @@ function Price() {
 
     console.log(jsonData)
 
-    debugger
     if (jsonData[0]['SpecialPrice'] && jsonData[0]['SellerSKU']) {
       setMainData(jsonData)
     } else {
@@ -230,6 +229,10 @@ function Price() {
         <button onClick={() => clearFile('campaign')}>Remove</button>
       )}
 
+      <br /><br />
+      <label htmlFor="">File name:</label>
+      <br />
+      <input type="text" value={fileName} onChange={(e) => {setFileName(e.target.value)}} />
       <br />
       <button onClick={processData} style={{marginTop: '20px'}}>Process</button>
     </>

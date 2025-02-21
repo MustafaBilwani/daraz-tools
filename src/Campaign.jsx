@@ -7,14 +7,13 @@ export default function Campaign () {
   const [productSkus, setProductSkus] = useState(null)
   const [productPrices, setProductPrices] = useState(null)
   const [mainData, setMainData] = useState(null)
+  const [fileName, setFileName] = useState('')
 
   const skuInputRef = useRef(null);
   const priceInputRef = useRef(null);
   const mainDataInputRef = useRef(null);
 
   function processData () {
-
-    debugger
 
     if (!productPrices || !productSkus || !mainData){
       alert('all files required')
@@ -36,12 +35,11 @@ export default function Campaign () {
 
     XLSX.utils.book_append_sheet(wb, ws, 'sheet1')
 
-    XLSX.writeFile(wb, 'file.xlsx')
+    XLSX.writeFile(wb, (fileName || 'file') + '.xlsx')
 
   }
 
   async function handleProductSkuSheetInput(e) {
-    debugger
 
     const file = e.target.files[0];
 
@@ -127,8 +125,8 @@ export default function Campaign () {
     const jsonData = XLSX.utils.sheet_to_json(worksheet)
 
     const priceObject = jsonData.reduce((acc, item) => {
-      const name = item['Product Name']; // Column with the item name
-      const listingPrice = item["LISTING PRICE"]; // Column with the listing price
+      const name = item['Products']; // Column with the item name
+      const listingPrice = item["final listing price"]; // Column with the listing price
 
       if (name && listingPrice) {
         acc[name] = listingPrice;
@@ -181,6 +179,10 @@ export default function Campaign () {
         <button onClick={() => clearFile('main')}>Remove</button>
       )}
 
+      <br /><br />
+      <label htmlFor="">File name:</label>
+      <br />
+      <input type="text" value={fileName} onChange={(e) => {setFileName(e.target.value)}} />
       <br />
       <button onClick={processData} style={{marginTop: '20px'}}>Process</button>
     </>

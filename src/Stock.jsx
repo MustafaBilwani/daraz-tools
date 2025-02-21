@@ -1,11 +1,14 @@
 import React, { useRef, useState } from 'react'
-import * as XLSX from 'xlsx'
+import {writeFile, read, utils} from 'xlsx'
+
+const {sheet_to_json, book_new, json_to_sheet, book_append_sheet} = utils
 
 const Stock = () => {
 
   const [productSkus, setProductSkus] = useState(null)
   const [productStock, setProductStock] = useState(null)
   const [mainData, setMainData] = useState(null)
+  const [fileName, setFileName] = useState('')
 
   const skuInputRef = useRef(null);
   const stockInputRef = useRef(null);
@@ -30,13 +33,12 @@ const Stock = () => {
 
     console.log('processed data', mainData)
 
-    var wb = XLSX.utils.book_new()
-    var ws = XLSX.utils.json_to_sheet(mainData);
+    var wb = book_new()
+    var ws = json_to_sheet(mainData);
 
-    XLSX.utils.book_append_sheet(wb, ws, 'sheet1')
+    book_append_sheet(wb, ws, 'sheet1')
 
-    XLSX.writeFile(wb, 'file.xlsx')
-
+    writeFile(wb, (fileName || 'file') + '.xlsx')
   }
 
   async function handleProductSkuSheetInput(e) {
@@ -49,9 +51,9 @@ const Stock = () => {
     }
 
     const data = await file.arrayBuffer();
-    const workbook = XLSX.read(data);
+    const workbook = read(data);
     const worksheet = workbook.Sheets[workbook.SheetNames[0]];
-    const jsonData = XLSX.utils.sheet_to_json(worksheet);
+    const jsonData = sheet_to_json(worksheet);
 
     const skuObject = jsonData.reduce((acc, item) => {
       const productName = item["product name"];
@@ -71,6 +73,8 @@ const Stock = () => {
       return acc;
     }, {});
 
+    console.log(skuObject)
+
     if ( Object.keys(skuObject).length > 0 ) {
       setProductSkus(skuObject) 
     } else {
@@ -89,10 +93,10 @@ const Stock = () => {
     }
     
     const data = await file.arrayBuffer();
-    const workbook = XLSX.read(data)
+    const workbook = read(data)
     const worksheet = workbook.Sheets[workbook.SheetNames[0]]
 
-    const jsonData = XLSX.utils.sheet_to_json(worksheet)
+    const jsonData = sheet_to_json(worksheet)
 
     const stockObject = jsonData.reduce((acc, item) => {
       const name = item['Product Name']; // Column with the item name
@@ -124,14 +128,13 @@ const Stock = () => {
     }
     
     const data = await file.arrayBuffer();
-    const workbook = XLSX.read(data)
+    const workbook = read(data)
     const worksheet = workbook.Sheets[workbook.SheetNames[0]]
 
-    const jsonData = XLSX.utils.sheet_to_json(worksheet)
+    const jsonData = sheet_to_json(worksheet)
 
     console.log('main sheet data', jsonData)
 
-    debugger
     if (jsonData[0]['SpecialPrice'] && jsonData[0]['SellerSKU']) {
       setMainData(jsonData)
     } else {
@@ -174,7 +177,11 @@ const Stock = () => {
       {mainData && (
         <button onClick={() => clearFile('main')}>Remove</button>
       )}
-
+      
+      <br /><br />
+      <label>File name:</label>
+      <br />
+      <input type="text" value={fileName} onChange={(e) => {setFileName(e.target.value)}} />
       <br />
       <button onClick={processData} style={{marginTop: '20px'}}>Process</button>
     </>

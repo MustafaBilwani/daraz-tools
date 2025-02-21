@@ -3,6 +3,7 @@ import { createBrowserRouter, Link, RouterProvider } from 'react-router-dom'
 import Campaign from './Campaign'
 import Price from './Price'
 import Stock from './Stock'
+import FileMerger from './file-merger'
 
 function App() {
 
@@ -22,6 +23,10 @@ function App() {
     {
       path: '/stock',
       element: <><NavBar /><Stock /></>,
+    },
+    {
+      path: '/file-merger',
+      element: <><NavBar /><FileMerger /></>,
     },
   ], {
     basename: '/daraz-tools',
@@ -56,6 +61,9 @@ function NavBar() {
       </Link>
       <Link to="/stock" style={{ textDecoration: 'none', color: '#333', fontWeight: 'bold' }}>
         Stock
+      </Link>
+      <Link to="/file-merger" style={{ textDecoration: 'none', color: '#333', fontWeight: 'bold' }}>
+        File merger
       </Link>
     </div>
   )
